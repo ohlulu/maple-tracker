@@ -7,6 +7,7 @@ import ScreenCaptureKit
 import SwiftUI
 
 struct ContentView: View {
+  private let screenshot = Screenshot()
   @State private var capturedImage: NSImage?
 
   var body: some View {
@@ -18,7 +19,11 @@ struct ContentView: View {
       }
 
       Button("截圖指定應用程式") {
-        captureWindowOfApp()
+        Task {
+          for try await image in screenshot.start() {
+            capturedImage = image
+          }
+        }
       }
       .padding()
     }
