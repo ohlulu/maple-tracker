@@ -26,6 +26,11 @@ struct ContentView: View {
         }
       }
       .padding()
+
+      Button("停止截圖") {
+        screenshot.stop()
+      }
+      .padding()
     }
     .padding()
   }
