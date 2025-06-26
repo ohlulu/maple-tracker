@@ -10,3 +10,4 @@ DerivedData/
 
 # Swift Package Manager
 .build/
+*.xcuserstate
