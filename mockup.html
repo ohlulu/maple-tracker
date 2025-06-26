@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>練功效率分析工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #d0d0d0;
+            padding: 10px;
+            background-image: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 50px,
+                    rgba(60, 60, 60, 0.1) 50px,
+                    rgba(60, 60, 60, 0.1) 52px
+                );
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #262626;
+            border-radius: 4px;
+            border: 2px solid #404040;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Prison bars effect on header */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 40px,
+                rgba(50, 50, 50, 0.3) 40px,
+                rgba(50, 50, 50, 0.3) 44px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        header {
+            background: #333;
+            padding: 15px 20px;
+            border-bottom: 2px solid #555;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            font-weight: 700;
+            color: #f0f0f0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prisoner-number {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 14px;
+            color: #999;
+            font-family: 'Courier New', monospace;
+            background: #222;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .version-info {
+            font-size: 12px;
+            color: #888;
+            font-family: 'Courier New', monospace;
+        }
+
+        .controls {
+            padding: 15px 20px;
+            border-bottom: 2px solid #404040;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: repeating-linear-gradient(
+                45deg,
+                #2a2a2a,
+                #2a2a2a 10px,
+                #2d2d2d 10px,
+                #2d2d2d 20px
+            );
+            position: relative;
+            z-index: 2;
+        }
+
+        .record-btn {
+            background: #8b0000;
+            color: white;
+            border: 2px solid #660000;
+            padding: 8px 24px;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .record-btn:hover {
+            background: #a00000;
+            transform: translateY(-1px);
+        }
+
+        .record-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .record-btn.recording {
+            background: #228b22;
+            border-color: #1a6b1a;
+        }
+
+        .record-btn.recording:hover {
+            background: #2aa02a;
+        }
+
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #ff4444;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: #404040;
+            padding: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border: 1px solid #444;
+        }
+
+        .stat-card h3 {
+            color: #a0a0a0;
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .exp-list {
+            max-height: 180px;
+            overflow-y: auto;
+            background: #1a1a1a;
+            border-radius: 2px;
+            border: 1px solid #444;
+            padding: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .exp-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            font-size: 12px;
+            margin-bottom: 2px;
+            background: #222;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .exp-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .time-stamp {
+            color: #888;
+            font-weight: bold;
+        }
+
+        .exp-gain {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 30px 10px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            font-style: italic;
+        }
+
+        /* Scrollbar styling */
+        .exp-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .exp-list::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border: 1px solid #333;
+        }
+
+        .exp-list::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 1px;
+        }
+
+        .exp-list::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        /* Tally marks decoration */
+        .tally-marks {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 20px;
+            color: #444;
+            opacity: 0.5;
+            font-family: Arial, sans-serif;
+            letter-spacing: -2px;
+            transform: rotate(-5deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>練功服刑記錄系統</h1>
+            <div class="prisoner-number">#EXP-2025</div>
+            <div class="version-info">
+                建檔日期：2025-01-15 | 系統版本：v1.0.0
+            </div>
+        </header>
+
+        <div class="controls">
+            <button class="record-btn" id="recordBtn">開始服刑</button>
+            <div class="recording-indicator" id="recordingIndicator">
+                <div class="pulse"></div>
+                <span>監控中</span>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <!-- 每分鐘經驗獲取量 -->
+            <div class="stat-card">
+                <h3>每分鐘勞動成果</h3>
+                <div class="exp-list" id="minuteExpList">
+                    <div class="no-data">尚未開始服刑</div>
+                </div>
+            </div>
+
+            <!-- 每十分鐘經驗獲取量 -->
+            <div class="stat-card">
+                <h3>每十分鐘勞動成果</h3>
+                <div class="exp-list" id="tenMinuteExpList">
+                    <div class="no-data">需服刑滿10分鐘</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tally-marks">||||</div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let isRecording = false;
+        let recordingInterval = null;
+        let minuteCounter = 0;
+        let tenMinuteCounter = 0;
+        let totalExp = 0;
+        let expHistory = [];
+        let currentMinuteExp = 0;
+        let secondCounter = 0;
+
+        // DOM elements
+        const recordBtn = document.getElementById('recordBtn');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const minuteExpList = document.getElementById('minuteExpList');
+        const tenMinuteExpList = document.getElementById('tenMinuteExpList');
+
+        // Toggle recording
+        recordBtn.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                pauseRecording();
+            }
+        });
+
+        function startRecording() {
+            isRecording = true;
+            recordBtn.textContent = '暫停放風';
+            recordBtn.classList.add('recording');
+            recordingIndicator.classList.add('active');
+
+            // Clear "no data" message on first start
+            if (minuteCounter === 0) {
+                minuteExpList.innerHTML = '';
+                tenMinuteExpList.innerHTML = '';
+                secondCounter = 0;
+            }
+
+            // Record every second (for testing)
+            recordingInterval = setInterval(() => {
+                secondCounter++;
+                
+                // Generate random EXP (simulate actual game data)
+                // Reduced values since we're accumulating every second
+                const expGain = Math.floor(Math.random() * 1000) + 500;
+                totalExp += expGain;
+                currentMinuteExp += expGain;
+                expHistory.push(expGain);
+
+                // For testing: treat every 5 seconds as 1 minute
+                if (secondCounter % 5 === 0) {
+                    minuteCounter++;
+                    addMinuteEntry(minuteCounter, currentMinuteExp);
+                    currentMinuteExp = 0;
+
+                    // Update 10-minute stats (every 50 seconds in test mode)
+                    if (minuteCounter % 10 === 0 && minuteCounter > 0) {
+                        tenMinuteCounter++;
+                        // Sum of last 10 "minutes" of exp
+                        const last10MinExp = expHistory.slice(-50).reduce((a, b) => a + b, 0);
+                        addTenMinuteEntry(tenMinuteCounter, last10MinExp);
+                    }
+                }
+
+            }, 1000); // Update every second for testing
+        }
+
+        function pauseRecording() {
+            isRecording = false;
+            recordBtn.textContent = '繼續服刑';
+            recordBtn.classList.remove('recording');
+            recordingIndicator.classList.remove('active');
+            
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+        }
+
+        function addMinuteEntry(minute, exp) {
+            const entry = document.createElement('div');
+            entry.className = 'exp-item';
+            entry.innerHTML = `
+                <span class="time-stamp">第 ${minute} 分鐘</span>
+                <span class="exp-gain">+${exp.toLocaleString()} EXP</span>
+            `;
+            // Insert at the beginning (newest first)
+            minuteExpList.insertBefore(entry, minuteExpList.firstChild);
+        }
+
+        function addTenMinuteEntry(period, exp) {
+            // Remove "no data" message if it exists
+            if (tenMinuteExpList.querySelector('.no-data')) {
+                tenMinuteExpList.innerHTML = '';
+            }
+
+            const entry = document.createElement('div');
+            entry.className = 'exp-item';
+            entry.innerHTML = `
+                <span class="time-stamp">第 ${period} 個10分鐘</span>
+                <span class="exp-gain">+${exp.toLocaleString()} EXP</span>
+            `;
+            // Insert at the beginning (newest first)
+            tenMinuteExpList.insertBefore(entry, tenMinuteExpList.firstChild);
+        }
+
+        // Update tally marks
+        function updateTallyMarks() {
+            const marks = document.querySelector('.tally-marks');
+            const count = Math.floor(minuteCounter / 10);
+            let tallyString = '';
+            
+            for (let i = 0; i < count; i++) {
+                if (i % 5 === 4) {
+                    tallyString += '<span style="text-decoration: line-through;">||||</span> ';
+                } else if (i === count - 1) {
+                    tallyString += '|'.repeat((count % 5) || 5);
+                }
+            }
+            
+            if (tallyString) {
+                marks.innerHTML = tallyString;
+            }
+        }
+    </script>
+</body>
+</html>
