@@ -3,7 +3,8 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:developer.apple.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }
