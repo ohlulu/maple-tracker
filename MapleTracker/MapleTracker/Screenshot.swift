@@ -64,13 +64,14 @@ final class Screenshot {
     }
 
     // Find the main window (usually the largest one that's not a toolbar/menu)
-    guard let targetWindow = appWindows
-        .filter({ window in
-          // Filter out small windows (likely toolbars/menus)
-          let minWidth: CGFloat = 400
-          let minHeight: CGFloat = 300
-          return window.frame.width >= minWidth && window.frame.height >= minHeight
-        })
+    guard
+      let targetWindow = appWindows
+        //        .filter({ window in
+        //          // Filter out small windows (likely toolbars/menus)
+        //          let minWidth: CGFloat = 400
+        //          let minHeight: CGFloat = 300
+        //          return window.frame.width >= minWidth && window.frame.height >= minHeight
+        //        })
         .max(by: { window1, window2 in
           // Get the largest window (by area)
           let area1 = window1.frame.width * window1.frame.height

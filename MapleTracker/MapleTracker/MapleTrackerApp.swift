@@ -8,7 +8,7 @@ import SwiftUI
 struct MapleTrackerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PrisonTrackingView()
         }
     }
 }
