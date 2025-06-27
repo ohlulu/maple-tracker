@@ -4,7 +4,7 @@ struct PrisonTrackingView: View {
     @State private var isRecording = false
     
     var body: some View {
-      VStack(spacing: 24) {
+      VStack(spacing: 16) {
           // Header Section
           HeaderView(isRecording: $isRecording)
               .id("header")
@@ -13,7 +13,7 @@ struct PrisonTrackingView: View {
           StatsContainerView()
               .id("stats")
       }
-      .padding(.horizontal, 20)
+      .padding(.horizontal, 16)
       .padding(.vertical, 16)
       .frame(maxWidth: 680)
     }

@@ -28,7 +28,7 @@ struct StatCardView: View {
             
             ExpListView(noDataMessage: noDataMessage)
         }
-        .padding(20)
+        .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(AppColors.surface)
