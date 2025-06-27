@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StatsContainerView: View {
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 16) {
             StatCardView(
                 title: "每分鐘勞動成果", 
                 noDataMessage: "尚未開始服刑"
@@ -13,8 +13,6 @@ struct StatsContainerView: View {
                 noDataMessage: "需服刑滿10分鐘"
             )
         }
-        .background(AppColors.primaryBorder)
-        .padding(2)
     }
 }
 
@@ -23,19 +21,17 @@ struct StatCardView: View {
     let noDataMessage: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(title)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundColor(AppColors.tertiaryText)
-                .textCase(.uppercase)
+                .font(.system(size: 14, weight: .medium, design: .default))
+                .foregroundColor(AppColors.onSurfaceVariant)
             
             ExpListView(noDataMessage: noDataMessage)
         }
-        .padding(15)
-        .background(AppColors.cardBackground)
-        .overlay(
-            Rectangle()
-                .stroke(AppColors.cardBorder, lineWidth: 1)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(AppColors.surface)
         )
     }
 }
@@ -44,5 +40,5 @@ struct StatCardView: View {
     StatsContainerView()
         .preferredColorScheme(.dark)
         .padding()
-        .background(AppColors.containerBackground)
+        .background(AppColors.background)
 }

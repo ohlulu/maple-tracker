@@ -1,96 +1,97 @@
 import SwiftUI
 
 struct HeaderView: View {
-  @Binding var isRecording: Bool
+    @Binding var isRecording: Bool
 
-  var body: some View {
-    VStack(alignment: .leading, spacing: 5) {
-      HStack {
-        VStack(alignment: .leading, spacing: 5) {
-          Text("練功服刑記錄系統")
-            .font(.system(size: 18, weight: .bold, design: .monospaced))
-            .foregroundColor(AppColors.secondaryText)
-            .textCase(.uppercase)
-
-          Text("建檔日期：2025-01-15 | 系統版本：v1.0.0")
-            .font(.system(size: 12, design: .monospaced))
-            .foregroundColor(AppColors.subtleText)
-        }
-
-        Spacer()
-
-        VStack(alignment: .trailing, spacing: 5) {
-          // Status button
-          Button(action: {
-            withAnimation(.easeInOut(duration: 0.2)) {
-              isRecording.toggle()
+    var body: some View {
+        HStack(spacing: 20) {
+            // Title Section
+          VStack(alignment: .leading, spacing: 8) {
+                Text("練功服刑記錄系統")
+                    .font(.system(size: 24, weight: .semibold, design: .default))
+                    .foregroundColor(AppColors.onBackground)
+                
+                Text("建檔日期：2025-01-15 | 系統版本：v1.0.0")
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundColor(AppColors.secondary)
             }
-          }) {
-            Text(isRecording ? "暫停放風" : "繼續服刑")
-              .font(.system(size: 14, weight: .bold, design: .monospaced))
-              .foregroundColor(AppColors.buttonText)
-              .textCase(.uppercase)
-              .padding(.horizontal, 16)
-              .padding(.vertical, 8)
-              .background(AppColors.buttonBackground)
-              .cornerRadius(3)
-              .overlay(
-                RoundedRectangle(cornerRadius: 3)
-                  .stroke(AppColors.secondaryBorder, lineWidth: 1)
-              )
-          }
-          .buttonStyle(PlainButtonStyle())
-          .scaleEffect(isRecording ? 0.95 : 1.0)
-          .animation(.easeInOut(duration: 0.1), value: isRecording)
+            
+            // Control Section
+            HStack {
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    // Status button
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isRecording.toggle()
+                        }
+                    }) {
+                        Text(isRecording ? "暫停放風" : "開始服刑")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(isRecording ? AppColors.accent : AppColors.accentRed)
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(isRecording ? 0.95 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: isRecording)
 
-          // Recording indicator
-          if isRecording {
-            RecordingIndicatorView()
-              .transition(.opacity)
-          }
+                    // Recording indicator
+                    if isRecording {
+                        RecordingIndicatorView()
+                            .transition(.opacity.combined(with: .scale))
+                    }
+                }
+                
+                Spacer()
+            }
         }
-      }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(AppColors.surface)
+        )
     }
-    .padding(.horizontal, 20)
-    .padding(.vertical, 15)
-    .overlay(
-      Rectangle()
-        .fill(AppColors.secondaryBorder)
-        .frame(height: 1),
-      alignment: .bottom
-    )
-  }
 }
 
 struct RecordingIndicatorView: View {
-  @State private var isPulsing = false
+    @State private var isPulsing = false
 
-  var body: some View {
-    HStack(spacing: 8) {
-      Circle()
-        .fill(AppColors.pulseColor)
-        .frame(width: 8, height: 8)
-        .scaleEffect(isPulsing ? 0.8 : 1.0)
-        .opacity(isPulsing ? 0.3 : 1.0)
-        .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isPulsing)
-        .onAppear {
-          isPulsing = true
+    var body: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(AppColors.accent)
+                .frame(width: 10, height: 10)
+                .scaleEffect(isPulsing ? 0.7 : 1.0)
+                .opacity(isPulsing ? 0.4 : 1.0)
+                .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isPulsing)
+                .onAppear {
+                    isPulsing = true
+                }
+
+            Text("監控中")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(AppColors.secondary)
         }
-
-      Text("監控中")
-        .font(.system(size: 11, design: .monospaced))
-        .foregroundColor(AppColors.indicatorText)
-        .textCase(.uppercase)
     }
-  }
 }
 
 #Preview {
-  HeaderView(isRecording: .constant(false))
-    .preferredColorScheme(.dark)
+    HeaderView(isRecording: .constant(false))
+        .preferredColorScheme(.dark)
+        .padding()
+        .background(AppColors.background)
 }
 
 #Preview("Recording") {
-  HeaderView(isRecording: .constant(true))
-    .preferredColorScheme(.dark)
+    HeaderView(isRecording: .constant(true))
+        .preferredColorScheme(.dark)
+        .padding()
+        .background(AppColors.background)
 }
